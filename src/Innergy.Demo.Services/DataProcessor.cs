@@ -31,11 +31,11 @@ namespace Innergy.Demo.Services
                                  .Select(g => new OutputGroupModel
                                               {
                                                   WarehouseName = g.Key,
-                                                  Items = g.GroupBy(i => new {i.ProductId, i.ProductName})
+                                                  Items = g.GroupBy(i => i.ProductId)
                                                            .Select(ig => new OutputItemModel
                                                                          {
-                                                                             Name = ig.Key.ProductName,
-                                                                             Id = ig.Key.ProductId,
+                                                                             Name = ig.FirstOrDefault()?.ProductName,
+                                                                             Id = ig.Key,
                                                                              Count = ig.Sum(_ => _.Quantity)
                                                                          })
                                               });
