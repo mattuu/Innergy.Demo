@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,28 @@ namespace Innergy.Demo.Services
 
         public IEnumerable<OutputGroupModel> Process(IEnumerable<InputLineModel> models)
         {
-            throw new NotImplementedException();
+            var deflated = models.SelectMany(m => m.Quantities,
+                                             (lm, qm) =>
+                                                 new
+                                                 {
+                                                     ProductId = lm.Id,
+                                                     ProductName = lm.Name,
+                                                     qm.WarehouseName,
+                                                     qm.Quantity
+                                                 })
+                                 .GroupBy(x => x.WarehouseName)
+                                 .Select(g => new OutputGroupModel
+                                              {
+                                                  WarehouseName = g.Key,
+                                                  Items = g.GroupBy(i => i.ProductName)
+                                                     .Select(ig => new OutputItemModel
+                                                                        {
+                                                                            Name = ig.Key,
+                                                                            Count = ig.Sum(_ => _.Quantity)
+                                                                        })
+                                              });
+
+            return deflated;
         }
     }
 }
