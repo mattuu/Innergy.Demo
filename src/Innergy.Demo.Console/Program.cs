@@ -1,32 +1,37 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Services;
+using Innergy.Demo.Services.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Innergy.Demo.Console
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.Populate(new ServiceCollection());
+            var serviceCollection = new ServiceCollection();
+            
+            serviceCollection.AddLogging(builder =>
+                                         {
+                                             builder.ClearProviders();
+                                             builder.AddConsole();
+                                         });
 
-            containerBuilder.RegisterType<TextFileInputReader>().As<IInputReader>();
+            serviceCollection.AddServices();
 
-            var container = containerBuilder.Build();
-            var serviceProvider = new AutofacServiceProvider(container);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var inputReader = serviceProvider.GetService<IInputReader>();
-            
+
             var filePath = Path.Combine(@"C:\tmp", "input.txt");
 
-            using(var file = File.OpenText(filePath))
+            using (var fileStreamReader = File.OpenText(filePath))
             {
-                inputReader.Parse(file.BaseStream);
+                inputReader.Parse(fileStreamReader);
                 //System.Console.WriteLine(file.ReadToEnd());
             }
 
