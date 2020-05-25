@@ -32,7 +32,10 @@ namespace Innergy.Demo.Services.Tests
             var ms = new MemoryStream();
             using (var sw = new StreamWriter(ms, leaveOpen: true))
             {
-                foreach (var line in lines) sw.WriteLine(line);
+                foreach (var line in lines)
+                {
+                    sw.WriteLine(line);
+                }
             }
 
             ms.Position = 0;
@@ -61,7 +64,10 @@ namespace Innergy.Demo.Services.Tests
             var ms = new MemoryStream();
             using (var sw = new StreamWriter(ms, leaveOpen: true))
             {
-                foreach (var line in lines) sw.WriteLine(line);
+                foreach (var line in lines)
+                {
+                    sw.WriteLine(line);
+                }
 
                 sw.Write(commentLine);
             }
