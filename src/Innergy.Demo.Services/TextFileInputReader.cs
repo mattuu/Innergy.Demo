@@ -29,7 +29,10 @@ namespace Innergy.Demo.Services
                 try
                 {
                     var item = _inputLineParser.Parse(line);
-                    list.Add(item);
+                    if (item != null)
+                    {
+                        list.Add(item);
+                    }
                 }
                 catch (InputLineParsingException e)
                 {

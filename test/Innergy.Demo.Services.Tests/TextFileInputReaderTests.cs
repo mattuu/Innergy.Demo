@@ -76,7 +76,42 @@ namespace Innergy.Demo.Services.Tests
 
             inputLineParserMock.Setup(m => m.Parse(It.IsAny<string>())).Returns(fixture.Create<InputLineModel>());
 
-            inputLineParserMock.Setup(m => m.Parse(It.Is<string>(s => s.Equals(commentLine))))
+            inputLineParserMock.Setup(m => m.Parse(It.Is<string>(s => commentLine.Equals(s)))).Returns(default(InputLineModel));
+
+            // act
+            using (var reader = new StreamReader(ms))
+            {
+                var actual = sut.Parse(reader);
+
+                // assert
+                actual.Count().ShouldBe(lines.Count());
+            }
+        }
+
+        [Theory, AutoMoqData]
+        public void Parse_ShouldIgnoreInvalidLines(IFixture fixture,
+                                                   [Frozen] Mock<IInputLineParser> inputLineParserMock,
+                                                   IEnumerable<string> lines,
+                                                   string invalidLine,
+                                                   TextFileInputReader sut)
+        {
+            // arrange
+            var ms = new MemoryStream();
+            using (var sw = new StreamWriter(ms, leaveOpen: true))
+            {
+                foreach (var line in lines)
+                {
+                    sw.WriteLine(line);
+                }
+
+                sw.Write(invalidLine);
+            }
+
+            ms.Position = 0;
+
+            inputLineParserMock.Setup(m => m.Parse(It.IsAny<string>())).Returns(fixture.Create<InputLineModel>());
+
+            inputLineParserMock.Setup(m => m.Parse(It.Is<string>(s => s.Equals(invalidLine))))
                                .Throws<InputLineParsingException>();
 
             // act

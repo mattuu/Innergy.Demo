@@ -46,8 +46,10 @@ namespace Innergy.Demo.Services.Tests
 
             // assert
             actual.ShouldHaveSingleItem();
+            actual.Single().WarehouseName.ShouldBe(warehouseName);
             actual.Single().TotalCount.ShouldBe(9);
             actual.Single().Items.ShouldHaveSingleItem();
+            actual.Single().Items.Single().Name.ShouldBe(productName);
             actual.Single().Items.Single().Count.ShouldBe(9);
         }
 
@@ -66,6 +68,7 @@ namespace Innergy.Demo.Services.Tests
 
             // assert
             actual.ShouldHaveSingleItem();
+            actual.Single().WarehouseName.ShouldBe(warehouseName);
             actual.Single().TotalCount.ShouldBe(6);
             actual.Single().Items.Count().ShouldBe(2);
             actual.Single().Items.ShouldContain(i => productAName.Equals(i.Name) && i.Count == 3);
