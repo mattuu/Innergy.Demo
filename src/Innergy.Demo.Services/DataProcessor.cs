@@ -31,12 +31,13 @@ namespace Innergy.Demo.Services
                                  .Select(g => new OutputGroupModel
                                               {
                                                   WarehouseName = g.Key,
-                                                  Items = g.GroupBy(i => i.ProductName)
-                                                     .Select(ig => new OutputItemModel
-                                                                        {
-                                                                            Name = ig.Key,
-                                                                            Count = ig.Sum(_ => _.Quantity)
-                                                                        })
+                                                  Items = g.GroupBy(i => new {i.ProductId, i.ProductName})
+                                                           .Select(ig => new OutputItemModel
+                                                                         {
+                                                                             Name = ig.Key.ProductName,
+                                                                             Id = ig.Key.ProductId,
+                                                                             Count = ig.Sum(_ => _.Quantity)
+                                                                         })
                                               });
 
             return deflated;

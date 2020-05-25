@@ -15,11 +15,11 @@ namespace Innergy.Demo.Services
 
             foreach (var groupModel in sortedModels)
             {
-                textWriter.WriteLine($"{groupModel.WarehouseName} ({groupModel.TotalCount})");
+                textWriter.WriteLine($"{groupModel.WarehouseName} (total {groupModel.TotalCount})");
 
-                foreach (var model in groupModel.Items.OrderBy(im => im.Name))
+                foreach (var model in groupModel.Items.OrderBy(im => im.Id))
                 {
-                    textWriter.WriteLine($"{model.Name}: {model.Count}");
+                    textWriter.WriteLine($"{model.Id}: {model.Count}");
                 }
 
                 textWriter.WriteLine();
