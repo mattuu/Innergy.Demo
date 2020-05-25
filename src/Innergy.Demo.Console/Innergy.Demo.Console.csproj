@@ -5,4 +5,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoFac" Version="5.2.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Innergy.Demo.Domain\Innergy.Demo.Domain.csproj" />
+    <ProjectReference Include="..\Innergy.Demo.Services\Innergy.Demo.Services.csproj" />
+  </ItemGroup>
+
 </Project>

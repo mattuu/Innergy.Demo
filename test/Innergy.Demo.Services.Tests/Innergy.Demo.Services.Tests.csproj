@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Innergy.Demo.Services\Innergy.Demo.Services.csproj" />
+    <ProjectReference Include="..\Innergy.Demo.TestUtils\Innergy.Demo.TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
