@@ -4,6 +4,8 @@
 
 [![mattuu](https://circleci.com/gh/mattuu/Innergy.Demo.svg?style=svg)](https://app.circleci.com/pipelines/github/mattuu/Innergy.Demo)
 
+[![codecov](https://codecov.io/gh/mattuu/Innergy.Demo/branch/master/graph/badge.svg)](https://codecov.io/gh/mattuu/Innergy.Demo)
+
 ## Instructions
 
 ```
