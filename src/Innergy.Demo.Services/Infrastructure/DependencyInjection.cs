@@ -10,7 +10,8 @@ namespace Innergy.Demo.Services.Infrastructure
             return serviceCollection.AddTransient<IDataProcessor, DataProcessor>()
                                     .AddTransient<IInputLineParser, InputLineParser>()
                                     .AddTransient<IInputReader, TextFileInputReader>()
-                                    .AddTransient<IOutputWriter, TextFileOutputWriter>();
+                                    .AddTransient<IOutputWriter, TextFileOutputWriter>()
+                                    .AddTransient<IJobRunner, JobRunner>();
         }
     }
 }
