@@ -13,4 +13,4 @@
        - run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=../../TestResults/ /p:CoverletOutputFormat=opencover
        - run: 
           shell: powershell.exe
-          command: .\.circleci\codecov.ps1 -token 948aac85-7d24-42b3-8fb9-1dd6bf34b0da -fName .\TestResults\coverage.opencover.xml
+          command: .\.circleci\codecov.ps1 -token d77fcebe-30ce-4aa4-bed2-cd9f1ba64e4f -fName .\TestResults\coverage.opencover.xml
