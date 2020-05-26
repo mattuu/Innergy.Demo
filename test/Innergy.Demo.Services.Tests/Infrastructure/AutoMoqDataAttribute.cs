@@ -3,7 +3,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Xunit2;
 
-namespace Solex.DevTest.TestUtils
+namespace Innergy.Demo.Services.Tests.Infrastructure
 {
     [ExcludeFromCodeCoverage]
     public class AutoMoqDataAttribute : AutoDataAttribute

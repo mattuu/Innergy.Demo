@@ -3,15 +3,14 @@ using System.IO;
 using System.Text;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Tests.Infrastructure;
 using Shouldly;
-using Solex.DevTest.TestUtils;
 using Xunit;
 
 namespace Innergy.Demo.Services.Tests
 {
     public class TextFileOutputWriterTests
     {
-
         [Theory, AutoMoqData]
         public void Ctor_ShouldThrowExceptionOnAnyNullDependency(GuardClauseAssertion assertion)
         {

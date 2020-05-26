@@ -6,9 +6,9 @@ using AutoFixture.Idioms;
 using AutoFixture.Xunit2;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Tests.Infrastructure;
 using Moq;
 using Shouldly;
-using Solex.DevTest.TestUtils;
 using Xunit;
 
 namespace Innergy.Demo.Services.Tests
@@ -76,7 +76,8 @@ namespace Innergy.Demo.Services.Tests
 
             inputLineParserMock.Setup(m => m.Parse(It.IsAny<string>())).Returns(fixture.Create<InputLineModel>());
 
-            inputLineParserMock.Setup(m => m.Parse(It.Is<string>(s => commentLine.Equals(s)))).Returns(default(InputLineModel));
+            inputLineParserMock.Setup(m => m.Parse(It.Is<string>(s => commentLine.Equals(s))))
+                               .Returns(default(InputLineModel));
 
             // act
             using (var reader = new StreamReader(ms))

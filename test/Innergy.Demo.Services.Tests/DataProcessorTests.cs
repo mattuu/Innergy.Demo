@@ -5,8 +5,8 @@ using AutoFixture;
 using AutoFixture.Dsl;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Tests.Infrastructure;
 using Shouldly;
-using Solex.DevTest.TestUtils;
 using Xunit;
 
 namespace Innergy.Demo.Services.Tests

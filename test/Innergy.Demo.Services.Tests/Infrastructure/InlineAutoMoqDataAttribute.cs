@@ -2,7 +2,7 @@
 using AutoFixture.Xunit2;
 using Xunit;
 
-namespace Solex.DevTest.TestUtils
+namespace Innergy.Demo.Services.Tests.Infrastructure
 {
     [ExcludeFromCodeCoverage]
     public class InlineAutoMoqDataAttribute : CompositeDataAttribute

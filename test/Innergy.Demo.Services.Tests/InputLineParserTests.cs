@@ -1,7 +1,7 @@
 using System.Linq;
 using AutoFixture.Idioms;
+using Innergy.Demo.Services.Tests.Infrastructure;
 using Shouldly;
-using Solex.DevTest.TestUtils;
 using Xunit;
 
 namespace Innergy.Demo.Services.Tests
