@@ -34,27 +34,6 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Write_ShouldOrderItemsCorrectly(IFixture fixture, TextFileOutputWriter sut)
-        {
-            // arrange
-            var models = fixture.Build<OutputGroupModel>()
-                                .WithWarehouseName("WH-A")
-                                .With(m => m.TotalCount, 10)
-                                .CreateMany(1);
-
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
-            // act
-            sut.Write(writer, models);
-
-            // assert
-
-            var x = stringBuilder.ToString();
-            x.ShouldNotBeEmpty();
-        }
-
-        [Theory, AutoMoqData]
         public void Write_ShouldWriteHeaderRowForWarehouse(IFixture fixture, TextFileOutputWriter sut)
         {
             // arrange
