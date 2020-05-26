@@ -9,9 +9,7 @@ namespace Innergy.Demo.Services
     public class InputLineModelBuilder : IInputLineModelBuilder
     {
         public const string CommentPrefix = "#";
-        public const string ElementDelimiter = ";";
-
-        private const string IdRegex = @"^[A-Z0-9]{2,6}-\w{2,}";
+        private const string IdRegex = @"^[A-Z0-9]{2,6}-[\w-]{2,}";
         private const string WarehouseRegex = @"WH-[A-C]{1},[-\d.]+";
         private const string WarehouseNameRegex = @"^WH-[\w]";
         private readonly Regex _idRegex;
@@ -54,10 +52,14 @@ namespace Innergy.Demo.Services
             return model;
         }
 
-        public bool TryBuildId(string line, string element)
+        public bool TryBuildComment(string line)
         {
             _line = line;
-          
+            return line.StartsWith(CommentPrefix);
+        }
+
+        public bool TryBuildId(string element)
+        {
             var idRegexMatch = _idRegex.Match(element);
             if (!idRegexMatch.Success)
             {

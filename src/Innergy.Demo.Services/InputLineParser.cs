@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 
@@ -6,7 +7,6 @@ namespace Innergy.Demo.Services
 {
     public class InputLineParser : IInputLineParser
     {
-        public const string CommentPrefix = "#";
         public const string ElementDelimiter = ";";
         private readonly IInputLineModelBuilder _builder;
 
@@ -18,23 +18,37 @@ namespace Innergy.Demo.Services
         public InputLineModel Parse(string line)
         {
             // ignore comment line
-            if (line.StartsWith(CommentPrefix))
+            if (_builder.TryBuildComment(line))
             {
                 return null;
             }
 
-            var elements = line.Split(ElementDelimiter.ToCharArray());
+            var elements = line.Split(ElementDelimiter.ToCharArray()).AsEnumerable();
 
-            foreach (var element in elements)
+            var idElement = elements.Select(e => _builder.TryBuildId(e) ? e : null);
+            if (idElement != null)
             {
+                elements = elements.Except(idElement);
 
-                if (!_builder.TryBuildId(line, element))
+                var nameElement = elements.Select(e => _builder.TryBuildName(e) ? e : null);
+                elements = elements.Except(nameElement);
+
+                foreach (var element in elements)
                 {
-                    _builder.TryBuildName(element);
+                    _builder.BuildQuantities(element);
                 }
-
-                _builder.BuildQuantities(element);
             }
+
+
+            //foreach (var element in elements)
+            //{
+            //    if (!_builder.TryBuildId(element))
+            //    {
+            //        _builder.TryBuildName(element);
+            //    }
+
+            //    _builder.BuildQuantities(element);
+            //}
 
             return _builder.Build();
         }

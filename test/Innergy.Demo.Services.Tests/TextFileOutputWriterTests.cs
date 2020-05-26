@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using AutoFixture;
-using AutoFixture.Dsl;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain.Models;
 using Innergy.Demo.Services.Tests.Infrastructure;
@@ -15,17 +13,6 @@ namespace Innergy.Demo.Services.Tests
 {
     public class TextFileOutputWriterTests
     {
-        private readonly Func<IPostprocessComposer<OutputGroupModel>, string, IPostprocessComposer<OutputGroupModel>>
-            _groupBuilder = (composer, warehouseName) => { return composer.With(m => m.WarehouseName, warehouseName); };
-
-        private readonly Func<IPostprocessComposer<OutputItemModel>, string, int, IPostprocessComposer<OutputItemModel>>
-            _modelBuilder = (composer, id, count) =>
-                            {
-                                return composer.With(m => m.Count, count)
-                                               .With(m => m.Id, id);
-                            };
-
-
         [Theory, AutoMoqData]
         public void Ctor_ShouldThrowExceptionOnAnyNullDependency(GuardClauseAssertion assertion)
         {
@@ -181,39 +168,6 @@ namespace Innergy.Demo.Services.Tests
         private static string ReadLine(string source, int index)
         {
             return source.Split("\r\n")[index];
-        }
-    }
-
-    public static class FixtureExtensions
-    {
-        public static IPostprocessComposer<OutputGroupModel> WithWarehouseName(
-            this IPostprocessComposer<OutputGroupModel> composer, string warehouseName)
-        {
-            return composer.With(m => m.WarehouseName, warehouseName);
-        }
-
-        public static IPostprocessComposer<OutputGroupModel> WithItems(
-            this IPostprocessComposer<OutputGroupModel> composer, IDictionary<string, int> itemsDefinitions,
-            IFixture fixture)
-        {
-            var items = itemsDefinitions?.Select(def => fixture.Build<OutputItemModel>()
-                                                               .WithId(def.Key)
-                                                               .WithCount(def.Value)
-                                                               .Create());
-
-            return items != null ? composer.With(m => m.Items, items) : composer;
-        }
-
-        public static IPostprocessComposer<OutputItemModel> WithId(
-            this IPostprocessComposer<OutputItemModel> composer, string id)
-        {
-            return composer.With(m => m.Id, id);
-        }
-
-        public static IPostprocessComposer<OutputItemModel> WithCount(
-            this IPostprocessComposer<OutputItemModel> composer, int count)
-        {
-            return composer.With(m => m.Count, count);
         }
     }
 }

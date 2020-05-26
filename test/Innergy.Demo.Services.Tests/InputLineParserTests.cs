@@ -1,6 +1,11 @@
 using System.Linq;
 using AutoFixture.Idioms;
+using AutoFixture.Xunit2;
+using Innergy.Demo.Domain;
+using Innergy.Demo.Domain.Models;
 using Innergy.Demo.Services.Tests.Infrastructure;
+using Moq;
+using SemanticComparison.Fluent;
 using Shouldly;
 using Xunit;
 
@@ -16,41 +21,71 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Parse_ShouldReturnNullForCommentLine(string line, InputLineParser sut)
+        public void Parse_ShouldReturnNullForCommentLine([Frozen] Mock<IInputLineModelBuilder> builderMock, string line, InputLineParser sut)
         {
             // arrange 
-            var commentLine = $"{InputLineParser.CommentPrefix}{line}";
+            builderMock.Setup(m => m.TryBuildComment(line)).Returns(true);
 
             // act
-            var actual = sut.Parse(commentLine);
+            var actual = sut.Parse(line);
 
             // assert
             actual.ShouldBeNull();
         }
 
-        [Theory]
-        [InlineAutoMoqData("ABC-123;foo", "ABC-123")]
-        [InlineAutoMoqData("foo;ABC-123", "ABC-123")]
-        public void Parse_ShouldCaptureIdField(string line, string expected, InputLineParser sut)
+        [Theory, AutoMoqData]
+        public void Parse_ShouldReturnCorrectResult([Frozen] Mock<IInputLineModelBuilder> builderMock, 
+                                               string line,
+                                               InputLineModel model, 
+                                               InputLineParser sut)
         {
+            // arrange
+            builderMock.Setup(m => m.TryBuildComment(line)).Returns(false);
+            builderMock.Setup(m => m.TryBuildId(line)).Returns(true);
+            builderMock.Setup(m => m.TryBuildName(line)).Returns(true);
+            builderMock.Setup(m => m.Build()).Returns(model);
+
             // act
             var actual = sut.Parse(line);
 
             // assert
-            actual.Id.ShouldBe(expected);
+            model.AsSource()
+                 .OfLikeness<InputLineModel>()
+                 .With(m => m.Id).EqualsWhen((m, i) => m.Id == i.Id)
+                 .With(m => m.Name).EqualsWhen((m, i) => m.Name == i.Name)
+                 .With(m => m.Quantities).EqualsWhen((m, i) => m.Quantities.SequenceEqual(i.Quantities))
+                 .ShouldEqual(actual);
         }
 
-        [Theory]
-        [InlineAutoMoqData("This is a name;ABC-123", "This is a name")]
-        [InlineAutoMoqData("ABC-123;This is a name", "This is a name")]
-        public void Parse_ShouldCaptureNameField(string line, string expected, InputLineParser sut)
+        [Theory, AutoMoqData]
+        public void Parse_ThrowExceptionWhenUnableToParseId([Frozen] Mock<IInputLineModelBuilder> builderMock,
+                                                    string line,
+                                                    InputLineModel model,
+                                                    InputLineParser sut)
         {
+            // arrange
+            builderMock.Setup(m => m.TryBuildComment(line)).Returns(false);
+            builderMock.Setup(m => m.TryBuildId(line)).Returns(false);
+            builderMock.Setup(m => m.Build()).Returns(model);
+
             // act
             var actual = sut.Parse(line);
 
             // assert
-            actual.Name.ShouldBe(expected);
+            model.AsSource()
+                 .OfLikeness<InputLineModel>()
+                 .With(m => m.Id).EqualsWhen((m, i) => m.Id == i.Id)
+                 .With(m => m.Name).EqualsWhen((m, i) => m.Name == i.Name)
+                 .With(m => m.Quantities).EqualsWhen((m, i) => m.Quantities.SequenceEqual(i.Quantities))
+                 .ShouldEqual(actual);
         }
+
+
+
+
+
+
+
 
         [Theory]
         [InlineAutoMoqData("Name;ABC-123;WH-A,1|WH-B,2", "WH-A", 1, "WH-B", 2)]
