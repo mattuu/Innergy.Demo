@@ -10,7 +10,7 @@ namespace Innergy.Demo.Services
     {
         public void Write(TextWriter textWriter, IEnumerable<OutputGroupModel> models)
         {
-            var sortedModels = models.OrderBy(m => m.TotalCount)
+            var sortedModels = models.OrderByDescending(m => m.TotalCount)
                                      .ThenByDescending(m => m.WarehouseName);
 
             foreach (var groupModel in sortedModels)
