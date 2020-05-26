@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
+﻿using System;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 
@@ -9,10 +8,12 @@ namespace Innergy.Demo.Services
     {
         public const string CommentPrefix = "#";
         public const string ElementDelimiter = ";";
+        private readonly IInputLineModelBuilder _builder;
 
-        private const string IdRegex = @"^[A-Z0-9]{2,6}-\w{2,}";
-        private const string WarehouseRegex = @"WH-[A-C]{1},[-\d.]+";
-        private const string WarehouseNameRegex = @"^WH-[\w]";
+        public InputLineParser(IInputLineModelBuilder builder)
+        {
+            _builder = builder ?? throw new ArgumentNullException(nameof(builder));
+        }
 
         public InputLineModel Parse(string line)
         {
@@ -24,73 +25,18 @@ namespace Innergy.Demo.Services
 
             var elements = line.Split(ElementDelimiter.ToCharArray());
 
-            var model = new InputLineModel();
-
-            var idRegex = new Regex(IdRegex);
-            var warehouseRegex = new Regex(WarehouseRegex);
-            var warehouseQtyRegex = new Regex(@"-?[\d.]+");
-            var warehouseNameRegex = new Regex(WarehouseNameRegex);
-
             foreach (var element in elements)
             {
-                // use regex to capture item ID: [A-Z0-9]{2,6}-\w+
-                var idRegexMatch = idRegex.Match(element);
-                if (idRegexMatch.Success)
+
+                if (!_builder.TryBuildId(line, element))
                 {
-                    model.Id = idRegexMatch.Value;
+                    _builder.TryBuildName(element);
                 }
-                else
-                {
-                    if (warehouseRegex.IsMatch(element))
-                    {
-                        var warehouseMatches = warehouseRegex.Matches(element);
-                        var quantityList = new Collection<InputLineQuantityModel>();
-                        foreach (Match match in warehouseMatches)
-                        {
-                            var warehouseNameMatch = warehouseNameRegex.Match(match.Value);
-                            var warehouseQtyMatch = warehouseQtyRegex.Match(match.Value);
 
-                            if (warehouseNameMatch.Success && warehouseQtyMatch.Success)
-                            {
-                                var qtyModel = new InputLineQuantityModel
-                                               {
-                                                   WarehouseName = warehouseNameMatch.Value
-                                               };
-
-                                if (int.TryParse(warehouseQtyMatch.Value, out var qty) && qty > 0)
-                                {
-                                    qtyModel.Quantity = qty;
-                                    quantityList.Add(qtyModel);
-                                }
-                                else
-                                {
-                                    throw new InputLineParsingException(line);
-                                }
-                            }
-                            else
-                            {
-                                throw new InputLineParsingException(line);
-                            }
-                        }
-
-                        model.Quantities = quantityList;
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(model.Name) && !string.IsNullOrEmpty(element))
-                        {
-                            model.Name = element;
-                        }
-                    }
-                }
+                _builder.BuildQuantities(element);
             }
 
-            if (string.IsNullOrEmpty(model.Id) || string.IsNullOrEmpty(model.Name))
-            {
-                throw new InputLineParsingException(line);
-            }
-
-            return model;
+            return _builder.Build();
         }
     }
 }
