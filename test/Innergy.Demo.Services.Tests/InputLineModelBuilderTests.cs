@@ -155,7 +155,8 @@ namespace Innergy.Demo.Services.Tests
         [Theory]
         [InlineAutoMoqData("WH-A,1.2")]
         [InlineAutoMoqData("WH-A,-1")]
-        public void BuildQuantities_ShouldThrowExceptionWhenUnableToParseToken(string warehouseInfo, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
+        public void BuildQuantities_ShouldThrowExceptionWhenUnableToParseToken(
+            string warehouseInfo, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
         {
             // arrange 
             tokenizerMock.Setup(m => m.Token).Returns(Token.WarehouseInfo);
@@ -174,7 +175,7 @@ namespace Innergy.Demo.Services.Tests
         {
             // arrange 
             sut.Build();
-            
+
             // act
             var actual = sut.IsValid;
 
@@ -183,7 +184,9 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Build_ShouldSetIsValidToTrueWhenIdAndNameBothSet(Mock<ITokenizer> idTokenizerMock, string name, Mock<ITokenizer> nameTokenizerMock, string id, InputLineModelBuilder sut)
+        public void Build_ShouldSetIsValidToTrueWhenIdAndNameBothSet(Mock<ITokenizer> idTokenizerMock, string name,
+                                                                     Mock<ITokenizer> nameTokenizerMock, string id,
+                                                                     InputLineModelBuilder sut)
         {
             // arrange 
             idTokenizerMock.Setup(m => m.Token).Returns(Token.ProductId);
@@ -202,6 +205,5 @@ namespace Innergy.Demo.Services.Tests
             // assert
             actual.ShouldBeTrue();
         }
-
     }
 }

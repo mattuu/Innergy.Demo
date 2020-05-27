@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Innergy.Demo.Services
 {
+    [Obsolete]
     public class TextFileInputReader : IInputReader
     {
         private readonly IInputLineParser _inputLineParser;

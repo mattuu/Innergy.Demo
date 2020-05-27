@@ -13,6 +13,7 @@ namespace Innergy.Demo.Services.Infrastructure
                                     .AddTransient<IInputLineParser, InputLineParser>()
                                     .AddTransient<IInputLineModelBuilder, InputLineModelBuilder>()
                                     .AddTransient<IInputReader, TextFileInputReader>()
+                                    .AddTransient<IInputStrategy, TextFileInputStrategy>()
                                     .AddTransient<IOutputWriter, TextFileOutputWriter>()
                                     .AddTransient<IJobRunner, JobRunner>();
         }
