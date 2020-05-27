@@ -1,5 +1,9 @@
+using System.Linq;
 using AutoFixture.Idioms;
+using AutoFixture.Xunit2;
+using Innergy.Demo.Domain;
 using Innergy.Demo.Services.Tests.Infrastructure;
+using Moq;
 using Shouldly;
 using Xunit;
 
@@ -15,116 +19,188 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void TryBuildComment_ShouldReturnTrueWhenLineStartsWithCommentPrefix(
-            string line, InputLineModelBuilder sut)
+        public void BuildComment_ShouldSetIsCommentToTrueForCommentLine([Frozen] Mock<ITokenizer> tokenizerMock,
+                                                                        InputLineModelBuilder sut)
         {
             // arrange 
-            var commentLine = $"{InputLineModelBuilder.CommentPrefix}{line}";
+            tokenizerMock.Setup(m => m.Token).Returns(Token.Comment);
 
             // act
-            var actual = sut.TryBuildComment(commentLine);
+            sut.BuildComment(tokenizerMock.Object);
 
             // assert
-            actual.ShouldBeTrue();
-        }
-
-        [Theory, AutoMoqData]
-        public void TryBuildComment_ShouldReturnFalseForNonCommentLine(string line, InputLineModelBuilder sut)
-        {
-            // act
-            var actual = sut.TryBuildComment(line);
-
-            // assert
-            actual.ShouldBeFalse();
+            sut.IsComment.ShouldBeTrue();
         }
 
         [Theory]
-        [InlineAutoMoqData("ABC-123")]
-        [InlineAutoMoqData("3M-Cherry-10mm")]
-        [InlineAutoMoqData("COM-100001")]
-        [InlineAutoMoqData("COM-123906c")]
-        [InlineAutoMoqData("COM-123908")]
-        [InlineAutoMoqData("COM-124047")]
-        public void TryBuildId_ShouldReturnTrueIfValueConformsPattern(string line, InputLineModelBuilder sut)
+        [InlineAutoMoqData(Token.EOL)]
+        [InlineAutoMoqData(Token.ProductName)]
+        [InlineAutoMoqData(Token.ProductId)]
+        [InlineAutoMoqData(Token.WarehouseInfo)]
+        public void BuildComment_ShouldSetIsCommentToFalseForNonCommentLine(
+            Token token, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
         {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(token);
+
             // act
-            var actual = sut.TryBuildId(line);
+            sut.BuildComment(tokenizerMock.Object);
 
             // assert
-            actual.ShouldBeTrue();
+            sut.IsComment.ShouldBeFalse();
         }
 
         [Theory, AutoMoqData]
-        public void TryBuildId_ShouldReturnFalseIfValueDoesNotConformPattern(string line, InputLineModelBuilder sut)
+        public void BuildId_ShouldSetIdFieldFromProductIdToken([Frozen] Mock<ITokenizer> tokenizerMock,
+                                                               InputLineModelBuilder sut)
         {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(Token.ProductId);
+
             // act
-            var actual = sut.TryBuildId(line);
+            sut.BuildId(tokenizerMock.Object);
 
             // assert
-            actual.ShouldBeFalse();
+            sut.Build().Id.ShouldBe(tokenizerMock.Object.Value);
         }
-
-        [Theory, AutoMoqData]
-        public void TryBuildName_ShouldReturnTrueIfValueIsNotEmpty(string line, InputLineModelBuilder sut)
-        {
-            // act
-            var actual = sut.TryBuildName(line);
-
-            // assert
-            actual.ShouldBeTrue();
-        }
-
-        [Theory, AutoMoqData]
-        public void TryBuildName_ShouldReturnFalseIfValueIsEmpty(InputLineModelBuilder sut)
-        {
-            // act
-            var actual = sut.TryBuildName(null);
-
-            // assert
-            actual.ShouldBeFalse();
-        }
-
-
-        // TODO test BuildQuantities()
 
         [Theory]
-        [InlineAutoMoqData("ABC-123", "this is a name", "WH-A", 3)]
-        public void Build_ShouldReturnCorrectObject(string id, string name, string warehouse, int count,
-                                                    InputLineModelBuilder sut)
+        [InlineAutoMoqData(Token.EOL)]
+        [InlineAutoMoqData(Token.ProductName)]
+        [InlineAutoMoqData(Token.Comment)]
+        [InlineAutoMoqData(Token.WarehouseInfo)]
+        public void BuildId_ShouldNotSetIdFieldFromNonProductIdToken(Token token,
+                                                                     [Frozen] Mock<ITokenizer> tokenizerMock,
+                                                                     InputLineModelBuilder sut)
         {
-            // arrange
-            var line = $"{id};{name};{warehouse},{count}";
-            sut.TryBuildId(id);
-            sut.BuildQuantities($"{warehouse},{count}");
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(token);
 
             // act
-            var actual = sut.Build();
+            sut.BuildId(tokenizerMock.Object);
+
+            // assert
+            sut.Build().Id.ShouldBeNull();
+        }
+
+        [Theory, AutoMoqData]
+        public void BuildName_ShouldSetNameFieldFromProductNameToken([Frozen] Mock<ITokenizer> tokenizerMock,
+                                                                     InputLineModelBuilder sut)
+        {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(Token.ProductName);
+
+            // act
+            sut.BuildId(tokenizerMock.Object);
+
+            // assert
+            sut.Build().Name.ShouldBe(tokenizerMock.Object.Value);
+        }
+
+        [Theory]
+        [InlineAutoMoqData(Token.EOL)]
+        [InlineAutoMoqData(Token.ProductId)]
+        [InlineAutoMoqData(Token.Comment)]
+        [InlineAutoMoqData(Token.WarehouseInfo)]
+        public void BuildName_ShouldNotSetNameFieldFromNonProductIdToken(
+            Token token, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
+        {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(token);
+
+            // act
+            sut.BuildId(tokenizerMock.Object);
+
+            // assert
+            sut.Build().Name.ShouldBeNull();
+        }
+
+        [Theory]
+        [InlineAutoMoqData("WH-A,12|WH-B,3")]
+        public void BuildQuantities_ShouldSetQuantitiesFieldWarehouseInfoToken(
+            string warehouseInfo, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
+        {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(Token.WarehouseInfo);
+            tokenizerMock.Setup(m => m.Value).Returns(warehouseInfo);
+
+            // act
+            sut.BuildQuantities(tokenizerMock.Object);
+
+            // assert
+            var quantities = sut.Build().Quantities;
+            quantities.Count().ShouldBe(2);
+            quantities.ShouldContain(q => "WH-A".Equals(q.WarehouseName) && q.Quantity == 12);
+            quantities.ShouldContain(q => "WH-B".Equals(q.WarehouseName) && q.Quantity == 3);
+        }
+
+        [Theory]
+        [InlineAutoMoqData(Token.EOL)]
+        [InlineAutoMoqData(Token.ProductId)]
+        [InlineAutoMoqData(Token.ProductName)]
+        [InlineAutoMoqData(Token.Comment)]
+        public void Quantities_ShouldNotSetQuantitiesFieldFromNonWarehouseInfoToken(
+            Token token, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
+        {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(token);
+
+            // act
+            sut.BuildId(tokenizerMock.Object);
+
+            // assert
+            sut.Build().Quantities.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineAutoMoqData("WH-A,1.2")]
+        [InlineAutoMoqData("WH-A,-1")]
+        public void BuildQuantities_ShouldThrowExceptionWhenUnableToParseToken(string warehouseInfo, [Frozen] Mock<ITokenizer> tokenizerMock, InputLineModelBuilder sut)
+        {
+            // arrange 
+            tokenizerMock.Setup(m => m.Token).Returns(Token.WarehouseInfo);
+            tokenizerMock.Setup(m => m.Value).Returns(warehouseInfo);
+
+            // act
+            var actual = Record.Exception(() => sut.BuildQuantities(tokenizerMock.Object));
 
             // assert
             actual.ShouldNotBeNull();
-            actual.Id.ShouldBe(id);
-            actual.Name.ShouldBe(name);
-            actual.Quantities.ShouldContain(q => warehouse.Equals(q.WarehouseName) && q.Quantity == count);
+            actual.ShouldBeOfType<InputLineParsingException>();
         }
 
-        [Theory]
-        [InlineAutoMoqData("this is a name", "ABC-123", "WH-A", 3)]
-        public void Build_ShouldReturnCorrectObjectWhenIdAndNameAreOtherWayRound(string id, string name, string warehouse, int count,
-                                                    InputLineModelBuilder sut)
+        [Theory, AutoMoqData]
+        public void Build_ShouldSetIsValidToFalseWhenIdOrNameNotSet(InputLineModelBuilder sut)
         {
-            // arrange
-            var line = $"{id};{name};{warehouse},{count}";
-            sut.TryBuildId(id);
-            sut.BuildQuantities($"{warehouse},{count}");
-
+            // arrange 
+            sut.Build();
+            
             // act
-            var actual = sut.Build();
+            var actual = sut.IsValid;
 
             // assert
-            actual.ShouldNotBeNull();
-            actual.Id.ShouldBe(id);
-            actual.Name.ShouldBe(name);
-            actual.Quantities.ShouldContain(q => warehouse.Equals(q.WarehouseName) && q.Quantity == count);
+            actual.ShouldBeFalse();
+        }
+
+        [Theory, AutoMoqData]
+        public void Build_ShouldSetIsValidToTrueWhenIdAndNameBothSet(Mock<ITokenizer> idTokenizerMock, string name, Mock<ITokenizer> nameTokenizerMock, string id, InputLineModelBuilder sut)
+        {
+            // arrange 
+            idTokenizerMock.Setup(m => m.Token).Returns(Token.ProductId);
+            idTokenizerMock.Setup(m => m.Value).Returns(name);
+            sut.BuildId(idTokenizerMock.Object);
+
+            nameTokenizerMock.Setup(m => m.Token).Returns(Token.ProductName);
+            nameTokenizerMock.Setup(m => m.Value).Returns(id);
+            sut.BuildName(nameTokenizerMock.Object);
+
+            sut.Build();
+
+            // act
+            var actual = sut.IsValid;
+
+            // assert
+            actual.ShouldBeTrue();
         }
 
     }

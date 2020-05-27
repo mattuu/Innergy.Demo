@@ -6,8 +6,6 @@
         Comment,
         ProductId,
         ProductName,
-        WarehouseInfo,
-        WarehouseId,
-        ProductQuantity
+        WarehouseInfo
     }
 }

@@ -29,6 +29,8 @@ namespace Innergy.Demo.Services
 
         public bool IsComment { get; private set; }
 
+        public bool IsValid { get; private set; }
+
         public InputLineModel Build()
         {
             if (IsComment)
@@ -36,10 +38,7 @@ namespace Innergy.Demo.Services
                 return null;
             }
 
-            if (string.IsNullOrEmpty(_id) || string.IsNullOrEmpty(_name))
-            {
-                throw new InputLineParsingException("Unable to read ID or Name from input string");
-            }
+            IsValid = !string.IsNullOrEmpty(_id) && !string.IsNullOrEmpty(_name);
 
             var model = new InputLineModel
                         {
