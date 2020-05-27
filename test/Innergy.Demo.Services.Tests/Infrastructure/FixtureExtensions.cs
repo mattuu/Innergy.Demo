@@ -4,7 +4,7 @@ using AutoFixture;
 using AutoFixture.Dsl;
 using Innergy.Demo.Domain.Models;
 
-namespace Innergy.Demo.Services.Tests
+namespace Innergy.Demo.Services.Tests.Infrastructure
 {
     public static class FixtureExtensions
     {

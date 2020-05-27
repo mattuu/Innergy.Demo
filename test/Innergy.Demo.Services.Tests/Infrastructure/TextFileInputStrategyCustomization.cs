@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using AutoFixture;
 using Innergy.Demo.Domain;
+using Innergy.Demo.Services.Input;
 using Microsoft.Extensions.Logging;
 
 namespace Innergy.Demo.Services.Tests.Infrastructure

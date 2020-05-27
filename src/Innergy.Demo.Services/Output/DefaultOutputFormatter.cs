@@ -2,7 +2,7 @@
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Output
 {
     public class DefaultOutputFormatter : IOutputFormatter
     {

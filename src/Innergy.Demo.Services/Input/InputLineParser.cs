@@ -2,9 +2,9 @@
 using System.IO;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
-using Innergy.Demo.Services.Parsing;
+using Innergy.Demo.Services.Input.Parsing;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Input
 {
     public class InputLineParser : IInputLineParser
     {

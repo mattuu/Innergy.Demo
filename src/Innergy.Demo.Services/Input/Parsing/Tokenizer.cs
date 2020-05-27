@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Innergy.Demo.Domain;
 
-namespace Innergy.Demo.Services.Parsing
+namespace Innergy.Demo.Services.Input.Parsing
 {
     public class Tokenizer : ITokenizer
     {

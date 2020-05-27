@@ -5,7 +5,7 @@ using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Input
 {
     public class TextFileInputStrategy : InputStrategyBase, IInputStrategy
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using Innergy.Demo.Domain;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Output.Writers
 {
     public class TextFileWriterStrategy : IWriterStrategy, IDisposable
     {

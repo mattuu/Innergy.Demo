@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Innergy.Demo.Console": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\tmp\\input.txt C:\\tmp\\output.txt"
+      "commandName": "Project"
     }
   }
 }

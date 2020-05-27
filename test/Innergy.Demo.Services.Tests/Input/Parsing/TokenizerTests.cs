@@ -1,12 +1,12 @@
 using System.IO;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain;
-using Innergy.Demo.Services.Parsing;
+using Innergy.Demo.Services.Input.Parsing;
 using Innergy.Demo.Services.Tests.Infrastructure;
 using Shouldly;
 using Xunit;
 
-namespace Innergy.Demo.Services.Tests
+namespace Innergy.Demo.Services.Tests.Input.Parsing
 {
     public class TokenizerTests
     {

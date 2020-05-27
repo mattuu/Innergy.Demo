@@ -2,6 +2,9 @@
 using Autofac.Extensions.DependencyInjection;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Services;
+using Innergy.Demo.Services.Input;
+using Innergy.Demo.Services.Output;
+using Innergy.Demo.Services.Output.Writers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

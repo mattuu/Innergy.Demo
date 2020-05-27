@@ -5,11 +5,12 @@ using AutoFixture.Idioms;
 using AutoFixture.Xunit2;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Output;
 using Innergy.Demo.Services.Tests.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace Innergy.Demo.Services.Tests
+namespace Innergy.Demo.Services.Tests.Output
 {
     public class DefaultOutputWriterTests
     {

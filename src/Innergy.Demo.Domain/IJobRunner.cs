@@ -1,4 +1,4 @@
-﻿namespace Innergy.Demo.Services
+﻿namespace Innergy.Demo.Domain
 {
     public interface IJobRunner
     {

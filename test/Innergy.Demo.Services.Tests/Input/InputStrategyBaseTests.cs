@@ -2,13 +2,14 @@ using AutoFixture.Idioms;
 using AutoFixture.Xunit2;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Input;
 using Innergy.Demo.Services.Tests.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
 using Xunit;
 
-namespace Innergy.Demo.Services.Tests
+namespace Innergy.Demo.Services.Tests.Input
 {
     public class InputStrategyBaseTests
     {

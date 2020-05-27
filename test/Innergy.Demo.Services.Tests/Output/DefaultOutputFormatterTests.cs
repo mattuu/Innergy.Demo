@@ -1,11 +1,12 @@
 using AutoFixture;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Output;
 using Innergy.Demo.Services.Tests.Infrastructure;
 using Shouldly;
 using Xunit;
 
-namespace Innergy.Demo.Services.Tests
+namespace Innergy.Demo.Services.Tests.Output
 {
     public class DefaultOutputFormatterTests
     {

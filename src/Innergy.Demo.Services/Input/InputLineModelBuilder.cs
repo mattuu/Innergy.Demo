@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Input
 {
     public class InputLineModelBuilder : IInputLineModelBuilder
     {
