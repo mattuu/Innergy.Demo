@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using AutoFixture;
 using AutoFixture.Idioms;
 using Innergy.Demo.Domain.Models;
@@ -11,40 +9,17 @@ using Xunit;
 
 namespace Innergy.Demo.Services.Tests
 {
-    public class TextFileOutputWriterTests
+    public class DefaultOutputSorterTests
     {
         [Theory, AutoMoqData]
         public void Ctor_ShouldThrowExceptionOnAnyNullDependency(GuardClauseAssertion assertion)
         {
             // assert..
-            assertion.Verify(typeof(TextFileOutputWriterStrategy).GetConstructors());
+            assertion.Verify(typeof(DefaultOutputSorter).GetConstructors());
         }
 
         [Theory, AutoMoqData]
-        public void Write_ShouldWriteHeaderRowForWarehouse(IFixture fixture, TextFileOutputWriterStrategy sut)
-        {
-            // arrange
-            var models = fixture.Build<OutputGroupModel>()
-                                .WithWarehouseName("ABC-123")
-                                .With(m => m.Items, fixture.Build<OutputItemModel>()
-                                                           .WithCount(10)
-                                                           .CreateMany(1))
-                                .CreateMany(1);
-
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
-            // act
-            sut.Write(models);
-
-            // assert
-            var firstLine = ReadLine(stringBuilder.ToString(), 0);
-            firstLine.ShouldBe("ABC-123 (total 10)");
-        }
-
-        [Theory, AutoMoqData]
-        public void Write_ShouldWriteWarehouseHeadersInOrderOfTotalCountDescending(
-            IFixture fixture, TextFileOutputWriterStrategy sut)
+        public void Sort_ShouldSortWarehousesByTotalCountDescending(IFixture fixture, DefaultOutputSorter sut)
         {
             // arrange
             var modelWithTotalOf10 = fixture.Build<OutputGroupModel>()
@@ -70,26 +45,24 @@ namespace Innergy.Demo.Services.Tests
                         .Union(modelWithTotalOf10)
                         .Union(modelWithTotalOf3);
 
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
             // act
-            sut.Write(models);
+            var actual = sut.Sort(models);
 
             // assert
-            var firstLine = ReadLine(stringBuilder.ToString(), 0);
-            firstLine.ShouldBe("ABC-123 (total 10)");
+            actual.Count().ShouldBe(3);
+            actual.ElementAt(0).TotalCount.ShouldBe(10);
+            actual.ElementAt(0).WarehouseName.ShouldBe("ABC-123");
 
-            var fourthLine = ReadLine(stringBuilder.ToString(), 3);
-            fourthLine.ShouldBe("GHI-789 (total 7)");
+            actual.ElementAt(1).TotalCount.ShouldBe(7);
+            actual.ElementAt(1).WarehouseName.ShouldBe("GHI-789");
 
-            var seventhLine = ReadLine(stringBuilder.ToString(), 6);
-            seventhLine.ShouldBe("DEF-456 (total 3)");
+            actual.ElementAt(2).TotalCount.ShouldBe(3);
+            actual.ElementAt(2).WarehouseName.ShouldBe("DEF-456");
         }
 
         [Theory, AutoMoqData]
-        public void Write_ShouldWriteWarehouseHeadersInAlphabeticalOrderOfDescendingWhenTotalCountsAreTheSame(
-            IFixture fixture, int count, TextFileOutputWriterStrategy sut)
+        public void Sort_ShouldWriteWarehouseHeadersInAlphabeticalOrderOfDescendingWhenTotalCountsAreTheSame(
+            IFixture fixture, int count, DefaultOutputSorter sut)
         {
             // arrange
             var modelWithTotalOf10 = fixture.Build<OutputGroupModel>()
@@ -115,30 +88,27 @@ namespace Innergy.Demo.Services.Tests
                         .Union(modelWithTotalOf10)
                         .Union(modelWithTotalOf3);
 
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
             // act
-            sut.Write(models);
+            var actual = sut.Sort(models);
 
             // assert
-            var firstLine = ReadLine(stringBuilder.ToString(), 0);
-            firstLine.ShouldBe($"GHI-789 (total {count})");
+            actual.Count().ShouldBe(3);
+            actual.ElementAt(0).TotalCount.ShouldBe(count);
+            actual.ElementAt(1).TotalCount.ShouldBe(count);
+            actual.ElementAt(2).TotalCount.ShouldBe(count);
 
-            var fourthLine = ReadLine(stringBuilder.ToString(), 3);
-            fourthLine.ShouldBe($"DEF-456 (total {count})");
-
-            var seventhLine = ReadLine(stringBuilder.ToString(), 6);
-            seventhLine.ShouldBe($"ABC-123 (total {count})");
+            actual.ElementAt(0).WarehouseName.ShouldBe("GHI-789");
+            actual.ElementAt(1).WarehouseName.ShouldBe("DEF-456");
+            actual.ElementAt(2).WarehouseName.ShouldBe("ABC-123");
         }
 
         [Theory, AutoMoqData]
-        public void Write_ShouldWriteRowsForProducts(IFixture fixture, TextFileOutputWriterStrategy sut)
+        public void Sort_ShouldSortProductsRowsInOrderOfProductIdAscending(IFixture fixture, DefaultOutputSorter sut)
         {
             // arrange
             var itemModel1 = fixture.Build<OutputItemModel>()
                                     .WithCount(10)
-                                    .WithId("DEF-12345")
+                                    .WithId("ABD-12345")
                                     .Create();
 
             var itemModel2 = fixture.Build<OutputItemModel>()
@@ -150,24 +120,13 @@ namespace Innergy.Demo.Services.Tests
                                 .With(m => m.Items, new[] {itemModel1, itemModel2})
                                 .CreateMany(1);
 
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
             // act
-            sut.Write(models);
+            var actual = sut.Sort(models);
 
             // assert
-            var content = stringBuilder.ToString();
-            var secondLine = ReadLine(content, 1);
-            secondLine.ShouldBe("ABC-44567: 28");
-
-            var thirdLine = ReadLine(content, 2);
-            thirdLine.ShouldBe("DEF-12345: 10");
-        }
-
-        private static string ReadLine(string source, int index)
-        {
-            return source.Split("\r\n")[index];
+            actual.ShouldHaveSingleItem().Items.Count().ShouldBe(2);
+            actual.ShouldHaveSingleItem().Items.ElementAt(0).Id.ShouldBe("ABC-44567");
+            actual.ShouldHaveSingleItem().Items.ElementAt(1).Id.ShouldBe("ABD-12345");
         }
     }
 }

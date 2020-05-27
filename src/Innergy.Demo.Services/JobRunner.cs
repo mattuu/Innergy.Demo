@@ -8,13 +8,13 @@ namespace Innergy.Demo.Services
     {
         private readonly IInputStrategy _inputStrategy;
         private readonly IDataProcessor _dataProcessor;
-        private readonly IOutputWriter _outputWriter;
+        private readonly IOutputWriterStrategy _outputWriterStrategy;
 
-        public JobRunner(IInputStrategy inputStrategy, IDataProcessor dataProcessor, IOutputWriter outputWriter)
+        public JobRunner(IInputStrategy inputStrategy, IDataProcessor dataProcessor, IOutputWriterStrategy outputWriterStrategy)
         {
             _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
             _dataProcessor = dataProcessor ?? throw new ArgumentNullException(nameof(dataProcessor));
-            _outputWriter = outputWriter ?? throw new ArgumentNullException(nameof(outputWriter));
+            _outputWriterStrategy = outputWriterStrategy ?? throw new ArgumentNullException(nameof(outputWriterStrategy));
         }
 
         public void Run(string source, StreamWriter outputWriter)
@@ -23,7 +23,7 @@ namespace Innergy.Demo.Services
          
             var outputModels = _dataProcessor.Process(inputModels);
             
-            _outputWriter.Write(outputWriter, outputModels);
+            _outputWriterStrategy.Write(outputModels);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Innergy.Demo.Services.Tests
         [Theory, AutoMoqData]
         public void Run_ShouldProduceOutputData([Frozen] Mock<IInputStrategy> inputStrategyMock,
                                                 [Frozen] Mock<IDataProcessor> dataProcessorMock,
-                                                [Frozen] Mock<IOutputWriter> outputWriterMock,
+                                                [Frozen] Mock<IOutputWriterStrategy> outputWriterMock,
                                                 IEnumerable<InputLineModel> models,
                                                 IEnumerable<OutputGroupModel> outputModels,
                                                 string source,
@@ -75,7 +75,7 @@ namespace Innergy.Demo.Services.Tests
 
             // assert
             outputWriterMock
-               .Verify(m => m.Write(It.IsAny<TextWriter>(), It.Is<IEnumerable<OutputGroupModel>>(d => d == outputModels)),
+               .Verify(m => m.Write(It.Is<IEnumerable<OutputGroupModel>>(d => d == outputModels)),
                        Times.Once());
         }
     }
