@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Innergy.Demo.Services
+namespace Innergy.Demo.Services.Input
 {
     public class InputLineParsingException : ApplicationException
     {

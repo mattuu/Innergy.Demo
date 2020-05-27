@@ -172,5 +172,17 @@ namespace Innergy.Demo.Services.Tests
                                       product1Id.Equals(g.Items.ShouldHaveSingleItem().Id) &&
                                       g.Items.ShouldHaveSingleItem().Count == 1);
         }
+
+
+        [Theory, AutoMoqData]
+        public void Process_ShouldHandleNullArgument(DataProcessor sut)
+        {
+            // act
+            var actual = sut.Process(null);
+
+            // assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeEmpty();
+        }
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using AutoFixture.Idioms;
 using AutoFixture.Xunit2;
 using Innergy.Demo.Domain;
@@ -20,38 +19,26 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Run_ShouldLoadDataUsingInputReader([Frozen] Mock<IInputReader> inputReaderMock, JobRunner sut)
+        public void Run_ShouldLoadDataUsingInputStrategy([Frozen] Mock<IInputStrategy> inputStrategyMock, JobRunner sut)
         {
             // act
-            using (var reader = new StreamReader(new MemoryStream()))
-            {
-                using (var writer = new StreamWriter(new MemoryStream()))
-                {
-                    sut.Run(reader, writer);
-                }
-            }
+            sut.Run();
 
             // assert
-            inputReaderMock.Verify(m => m.Parse(It.IsAny<StreamReader>()), Times.Once());
+            inputStrategyMock.Verify(m => m.Load(), Times.Once());
         }
 
         [Theory, AutoMoqData]
-        public void Run_ShouldProcessData([Frozen] Mock<IInputReader> inputReaderMock,
+        public void Run_ShouldProcessData([Frozen] Mock<IInputStrategy> inputStrategyMock,
                                           [Frozen] Mock<IDataProcessor> dataProcessorMock,
                                           IEnumerable<InputLineModel> models,
                                           JobRunner sut)
         {
             // arrange
-            inputReaderMock.Setup(m => m.Parse(It.IsAny<StreamReader>())).Returns(models);
+            inputStrategyMock.Setup(m => m.Load()).Returns(models);
 
             // act
-            using (var reader = new StreamReader(new MemoryStream()))
-            {
-                using (var writer = new StreamWriter(new MemoryStream()))
-                {
-                    sut.Run(reader, writer);
-                }
-            }
+            sut.Run();
 
             // assert
             dataProcessorMock.Verify(m => m.Process(It.Is<IEnumerable<InputLineModel>>(d => d == models)),
@@ -59,7 +46,7 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Run_ShouldProduceOutputData([Frozen] Mock<IInputReader> inputReaderMock,
+        public void Run_ShouldProduceOutputData([Frozen] Mock<IInputStrategy> inputStrategyMock,
                                                 [Frozen] Mock<IDataProcessor> dataProcessorMock,
                                                 [Frozen] Mock<IOutputWriter> outputWriterMock,
                                                 IEnumerable<InputLineModel> models,
@@ -67,22 +54,15 @@ namespace Innergy.Demo.Services.Tests
                                                 JobRunner sut)
         {
             // arrange
-            inputReaderMock.Setup(m => m.Parse(It.IsAny<StreamReader>())).Returns(models);
+            inputStrategyMock.Setup(m => m.Load()).Returns(models);
             dataProcessorMock.Setup(m => m.Process(models)).Returns(outputModels);
 
             // act
-            using (var reader = new StreamReader(new MemoryStream()))
-            {
-                using (var writer = new StreamWriter(new MemoryStream()))
-                {
-                    sut.Run(reader, writer);
-                }
-            }
+            sut.Run();
 
             // assert
-            outputWriterMock
-               .Verify(m => m.Write(It.IsAny<TextWriter>(), It.Is<IEnumerable<OutputGroupModel>>(d => d == outputModels)),
-                       Times.Once());
+            outputWriterMock.Verify(m => m.Write(It.Is<IEnumerable<OutputGroupModel>>(d => d == outputModels)),
+                                    Times.Once());
         }
     }
 }
