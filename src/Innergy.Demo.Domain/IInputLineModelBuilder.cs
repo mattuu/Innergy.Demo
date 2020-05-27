@@ -5,13 +5,13 @@ namespace Innergy.Demo.Domain
     public interface IInputLineModelBuilder
     {
         InputLineModel Build();
+
+        void BuildQuantities(ITokenizer tokenizer);
         
-        bool TryBuildComment(string line);
-     
-        bool TryBuildId(string element);
+        void BuildComment(ITokenizer tokenizer);
         
-        bool TryBuildName(string element);
-     
-        void BuildQuantities(string element);
+        void BuildId(ITokenizer tokenizer);
+        
+        void BuildName(ITokenizer tokenizer);
     }
 }

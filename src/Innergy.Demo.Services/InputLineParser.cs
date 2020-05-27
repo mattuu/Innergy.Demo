@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
+using System.IO;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
+using Innergy.Demo.Services.Parsing;
 
 namespace Innergy.Demo.Services
 {
     public class InputLineParser : IInputLineParser
     {
-        public const string ElementDelimiter = ";";
         private readonly IInputLineModelBuilder _builder;
 
         public InputLineParser(IInputLineModelBuilder builder)
@@ -17,38 +17,19 @@ namespace Innergy.Demo.Services
 
         public InputLineModel Parse(string line)
         {
-            // ignore comment line
-            if (_builder.TryBuildComment(line))
+            using (var stringReader = new StringReader(line))
             {
-                return null;
-            }
+                var tokenizer = new Tokenizer(stringReader);
 
-            var elements = line.Split(ElementDelimiter.ToCharArray()).AsEnumerable();
-
-            var idElement = elements.Select(e => _builder.TryBuildId(e) ? e : null);
-            if (idElement != null)
-            {
-                elements = elements.Except(idElement);
-
-                var nameElement = elements.Select(e => _builder.TryBuildName(e) ? e : null);
-                elements = elements.Except(nameElement);
-
-                foreach (var element in elements)
+                while (tokenizer.Token != Token.EOL)
                 {
-                    _builder.BuildQuantities(element);
+                    _builder.BuildComment(tokenizer);
+                    _builder.BuildId(tokenizer);
+                    _builder.BuildName(tokenizer);
+                    _builder.BuildQuantities(tokenizer);
+                    tokenizer.NextToken();
                 }
             }
-
-
-            //foreach (var element in elements)
-            //{
-            //    if (!_builder.TryBuildId(element))
-            //    {
-            //        _builder.TryBuildName(element);
-            //    }
-
-            //    _builder.BuildQuantities(element);
-            //}
 
             return _builder.Build();
         }

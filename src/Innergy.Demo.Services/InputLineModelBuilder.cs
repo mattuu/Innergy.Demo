@@ -8,34 +8,37 @@ namespace Innergy.Demo.Services
 {
     public class InputLineModelBuilder : IInputLineModelBuilder
     {
-        public const string CommentPrefix = "#";
-        private const string IdRegex = @"^[A-Z0-9]{2,6}-[\w-]{2,}";
         private const string WarehouseRegex = @"WH-[A-C]{1},[-\d.]+";
         private const string WarehouseNameRegex = @"^WH-[\w]";
-        private readonly Regex _idRegex;
-        private readonly InputLineModel _inputLineModel;
+        private const string WarehouseQtyRegex = @"-?[\d.]+";
+
         private readonly Regex _warehouseNameRegex;
         private readonly Regex _warehouseQtyRegex;
         private readonly Regex _warehouseRegex;
         private string _id;
         private string _name;
-        private IEnumerable<InputLineQuantityModel> _quantities;
-        private string _line;
+        private ICollection<InputLineQuantityModel> _quantities = new List<InputLineQuantityModel>();
 
         public InputLineModelBuilder()
         {
-            _inputLineModel = new InputLineModel();
-            _idRegex = new Regex(IdRegex);
             _warehouseRegex = new Regex(WarehouseRegex);
-            _warehouseQtyRegex = new Regex(@"-?[\d.]+");
             _warehouseNameRegex = new Regex(WarehouseNameRegex);
+            _warehouseRegex = new Regex(WarehouseRegex);
+            _warehouseQtyRegex = new Regex(WarehouseQtyRegex);
         }
+
+        public bool IsComment { get; private set; }
 
         public InputLineModel Build()
         {
+            if (IsComment)
+            {
+                return null;
+            }
+
             if (string.IsNullOrEmpty(_id) || string.IsNullOrEmpty(_name))
             {
-                throw new InputLineParsingException(_line);
+                throw new InputLineParsingException("Unable to read ID or Name from input string");
             }
 
             var model = new InputLineModel
@@ -47,45 +50,42 @@ namespace Innergy.Demo.Services
 
             _id = null;
             _name = null;
-            _quantities = null;
+            _quantities = new List<InputLineQuantityModel>();
 
             return model;
         }
 
-        public bool TryBuildComment(string line)
+        public void BuildComment(ITokenizer tokenizer)
         {
-            _line = line;
-            return line.StartsWith(CommentPrefix);
+            IsComment = tokenizer.Token == Token.Comment;
         }
 
-        public bool TryBuildId(string element)
+        public void BuildId(ITokenizer tokenizer)
         {
-            var idRegexMatch = _idRegex.Match(element);
-            if (!idRegexMatch.Success)
+            if (tokenizer.Token == Token.ProductId)
             {
-                return false;
+                _id = tokenizer.Value;
+            }
+        }
+
+        public void BuildName(ITokenizer tokenizer)
+        {
+            if (tokenizer.Token == Token.ProductName)
+            {
+                _name = tokenizer.Value;
+            }
+        }
+
+        public void BuildQuantities(ITokenizer tokenizer)
+        {
+            if (tokenizer.Token != Token.WarehouseInfo)
+            {
+                return;
             }
 
-            _id = idRegexMatch.Value;
-            return true;
-        }
-
-        public bool TryBuildName(string element)
-        {
-            if (!string.IsNullOrEmpty(_inputLineModel.Name) || string.IsNullOrEmpty(element))
+            if (_warehouseRegex.IsMatch(tokenizer.Value))
             {
-                return false;
-            }
-
-            _name = element;
-            return true;
-        }
-
-        public void BuildQuantities(string element)
-        {
-            if (_warehouseRegex.IsMatch(element))
-            {
-                var warehouseMatches = _warehouseRegex.Matches(element);
+                var warehouseMatches = _warehouseRegex.Matches(tokenizer.Value);
                 var quantityList = new Collection<InputLineQuantityModel>();
                 foreach (Match match in warehouseMatches)
                 {
@@ -106,12 +106,13 @@ namespace Innergy.Demo.Services
                         }
                         else
                         {
-                            throw new InputLineParsingException(_line);
+                            throw new InputLineParsingException($"Quantity is not integer: {warehouseQtyMatch.Value}");
                         }
                     }
                     else
                     {
-                        throw new InputLineParsingException(_line);
+                        throw new
+                            InputLineParsingException($"Warehouse name cannot be inferred from input string: {warehouseNameMatch.Value}");
                     }
                 }
 

@@ -94,9 +94,7 @@ namespace Innergy.Demo.Services.Tests
         {
             // arrange
             var line = $"{id};{name};{warehouse},{count}";
-            sut.TryBuildComment(line);
             sut.TryBuildId(id);
-            sut.TryBuildName(name);
             sut.BuildQuantities($"{warehouse},{count}");
 
             // act
@@ -116,9 +114,7 @@ namespace Innergy.Demo.Services.Tests
         {
             // arrange
             var line = $"{id};{name};{warehouse},{count}";
-            sut.TryBuildComment(line);
             sut.TryBuildId(id);
-            sut.TryBuildName(name);
             sut.BuildQuantities($"{warehouse},{count}");
 
             // act
