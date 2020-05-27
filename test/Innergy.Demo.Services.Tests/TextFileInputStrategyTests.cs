@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Xunit2;
 using Innergy.Demo.Domain;
@@ -21,7 +22,7 @@ namespace Innergy.Demo.Services.Tests
         }
 
         [Theory, AutoMoqData]
-        public void Load_ShouldReturnCorrectResult([Frozen] Mock<IInputLineParser> inputLineParserMock, string line, InputLineModel model, TextFileInputStrategy sut)
+        public void Load_ShouldReturnCorrectResult(IFixture fixture, [Frozen] Mock<IInputLineParser> inputLineParserMock, string line, InputLineModel model)
         {
             // arrange
             inputLineParserMock.Setup(m => m.Parse(line)).Returns(model);
@@ -35,8 +36,12 @@ namespace Innergy.Demo.Services.Tests
                 }
             }
 
+            fixture.Customize(new TextFileInputStrategyCustomization(filePath));
+
+            var sut = fixture.Create<TextFileInputStrategy>();
+
             // act
-            sut.Load(filePath);
+            sut.Load();
 
             // assert
             var actual = sut.GetModels();

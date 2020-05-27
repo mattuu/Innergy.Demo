@@ -3,7 +3,7 @@ using Innergy.Demo.Domain.Models;
 
 namespace Innergy.Demo.Domain
 {
-    public interface IOutputWriterStrategy
+    public interface IOutputWriter
     {
         void Write(IEnumerable<OutputGroupModel> models);
         

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Domain.Models;
@@ -8,14 +9,18 @@ namespace Innergy.Demo.Services
 {
     public class TextFileInputStrategy : InputStrategyBase, IInputStrategy
     {
-        public TextFileInputStrategy(ILogger<InputStrategyBase> logger, IInputLineParser inputLineParser) :
-            base(logger, inputLineParser)
+        private readonly string _filePath;
+
+        public TextFileInputStrategy(ILogger<InputStrategyBase> logger, IInputLineParser inputLineParser,
+                                     string filePath)
+            : base(logger, inputLineParser)
         {
+            _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
         }
 
-        public IEnumerable<InputLineModel> Load(string source)
+        public IEnumerable<InputLineModel> Load()
         {
-            using (var streamReader = File.OpenText(source))
+            using (var streamReader = File.OpenText(_filePath))
             {
                 while (!streamReader.EndOfStream)
                 {

@@ -5,6 +5,6 @@ namespace Innergy.Demo.Domain
 {
     public interface IInputStrategy
     {
-        IEnumerable<InputLineModel> Load(string source);
+        IEnumerable<InputLineModel> Load();
     }
 }

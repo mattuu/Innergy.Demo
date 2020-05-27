@@ -29,7 +29,37 @@ namespace Innergy.Demo.Services.Tests
             var actual = sut.FormatWarehouse(model);
 
             // assert
-            actual.ShouldBe("WarehouseName (total 5)");
+            actual.ShouldStartWith("WarehouseName (total 5)");
+        }
+
+        [Theory, AutoMoqData]
+        public void FormatWarehouse_ShouldWriteOutProductsOnSeparateLines(IFixture fixture, DefaultOutputFormatter sut)
+        {
+            // arrange
+            var model = fixture.Build<OutputGroupModel>()
+                               .WithWarehouseName("WarehouseName")
+                               .With(m => m.Items, 
+                                     new []
+                                     {
+                                         fixture.Build<OutputItemModel>()
+                                                .WithId("ProductA")
+                                                .WithCount(1)
+                                                .Create(),
+                                         fixture.Build<OutputItemModel>()
+                                                .WithId("ProductB")
+                                                .WithCount(1)
+                                                .Create()
+                                     })
+                               .Create();
+
+            // act
+            var actual = sut.FormatWarehouse(model);
+
+            // assert
+            actual.ShouldBe(@"WarehouseName (total 2)
+ProductA: 1
+ProductB: 1
+");
         }
 
         [Theory, AutoMoqData]
@@ -45,7 +75,7 @@ namespace Innergy.Demo.Services.Tests
             var actual = sut.FormatProduct(model);
 
             // assert
-            actual.ShouldBe("ABC-123: 4)");
+            actual.ShouldBe("ABC-123: 4");
         }
     }
 }

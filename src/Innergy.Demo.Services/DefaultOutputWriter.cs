@@ -5,18 +5,26 @@ using Innergy.Demo.Domain.Models;
 
 namespace Innergy.Demo.Services
 {
-    public abstract class OutputWriterStrategyBase : IOutputWriterStrategy
+    public class DefaultOutputWriter : IOutputWriter
     {
         private readonly IOutputSorter _outputSorter;
         private readonly IOutputFormatter _outputFormatter;
+        private readonly IWriterStrategy _writerStrategy;
 
-        protected OutputWriterStrategyBase(IOutputSorter outputSorter, IOutputFormatter outputFormatter)
+        public DefaultOutputWriter(IOutputSorter outputSorter, IOutputFormatter outputFormatter, IWriterStrategy writerStrategy)
         {
             _outputSorter = outputSorter ?? throw new ArgumentNullException(nameof(outputSorter));
             _outputFormatter = outputFormatter ?? throw new ArgumentNullException(nameof(outputFormatter));
+            _writerStrategy = writerStrategy ?? throw new ArgumentNullException(nameof(writerStrategy));
         }
 
-        public abstract void Write(IEnumerable<OutputGroupModel> models);
+        public virtual void Write(IEnumerable<OutputGroupModel> models)
+        {
+            foreach (var groupModel in SortItems(models))
+            {
+                _writerStrategy.WriteLine(FormatGroupHeader(groupModel));
+            }
+        }
 
         public IEnumerable<OutputGroupModel> SortItems(IEnumerable<OutputGroupModel> source)
         {
