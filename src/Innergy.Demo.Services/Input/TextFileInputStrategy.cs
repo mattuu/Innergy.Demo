@@ -9,26 +9,36 @@ namespace Innergy.Demo.Services.Input
 {
     public class TextFileInputStrategy : InputStrategyBase, IInputStrategy
     {
+        private readonly ILogger<InputStrategyBase> _logger;
         private readonly string _filePath;
 
         public TextFileInputStrategy(ILogger<InputStrategyBase> logger, IInputLineParser inputLineParser,
                                      string filePath)
             : base(logger, inputLineParser)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
         }
 
         public IEnumerable<InputLineModel> Load()
         {
-            using (var streamReader = File.OpenText(_filePath))
+            try
             {
-                while (!streamReader.EndOfStream)
+                using (var streamReader = File.OpenText(_filePath))
                 {
-                    var line = streamReader.ReadLine();
-                    ParseLine(line);
-                }
+                    while (!streamReader.EndOfStream)
+                    {
+                        var line = streamReader.ReadLine();
+                        ParseLine(line);
+                    }
 
-                return GetModels();
+                    return GetModels();
+                }
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return null;
             }
         }
     }

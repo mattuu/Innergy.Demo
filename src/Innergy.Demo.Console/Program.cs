@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Innergy.Demo.Domain;
 using Innergy.Demo.Services;
@@ -53,7 +54,14 @@ namespace Innergy.Demo.Console
             var container = builder.Build();
 
             var jobRunner = container.Resolve<IJobRunner>();
-            jobRunner.Run();
+            try
+            {
+                jobRunner.Run();
+            }
+            catch (Exception exception)
+            {
+                container.Resolve<ILogger<Program>>().LogError(exception, exception.Message);
+            }
         }
     }
 }

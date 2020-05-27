@@ -18,6 +18,12 @@ namespace Innergy.Demo.Services
 
         public IEnumerable<OutputGroupModel> Process(IEnumerable<InputLineModel> models)
         {
+            if (models == null)
+            {
+                _logger.LogWarning("Empty collection passed into data processor.");
+                return new OutputGroupModel[0];
+            }
+
             var deflated = models.SelectMany(m => m.Quantities,
                                              (lm, qm) =>
                                                  new
