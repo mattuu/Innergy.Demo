@@ -6,20 +6,20 @@ namespace Innergy.Demo.Services
 {
     public class JobRunner : IJobRunner
     {
-        private readonly IInputReader _inputReader;
+        private readonly IInputStrategy _inputStrategy;
         private readonly IDataProcessor _dataProcessor;
         private readonly IOutputWriter _outputWriter;
 
-        public JobRunner(IInputReader inputReader, IDataProcessor dataProcessor, IOutputWriter outputWriter)
+        public JobRunner(IInputStrategy inputStrategy, IDataProcessor dataProcessor, IOutputWriter outputWriter)
         {
-            _inputReader = inputReader ?? throw new ArgumentNullException(nameof(inputReader));
+            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
             _dataProcessor = dataProcessor ?? throw new ArgumentNullException(nameof(dataProcessor));
             _outputWriter = outputWriter ?? throw new ArgumentNullException(nameof(outputWriter));
         }
 
-        public void Run(StreamReader inputReader, StreamWriter outputWriter)
+        public void Run(string source, StreamWriter outputWriter)
         {
-            var inputModels = _inputReader.Parse(inputReader);
+            var inputModels = _inputStrategy.Load(source);
          
             var outputModels = _dataProcessor.Process(inputModels);
             

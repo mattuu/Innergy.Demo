@@ -28,15 +28,12 @@ namespace Innergy.Demo.Console
             var inputPath = args.Length > 0 ? args[0] : DEFAULT_INPUT_FILE_PATH;
             var outputPath = args.Length > 1 ? args[1] : DEFAULT_OUTPUT_FILE_PATH;
 
-            using (var fileStreamReader = File.OpenText(inputPath))
+            using (var outputStream = File.OpenWrite(outputPath))
             {
-                using (var outputStream = File.OpenWrite(outputPath))
+                using (var streamWriter = new StreamWriter(outputStream))
                 {
-                    using (var streamWriter = new StreamWriter(outputStream))
-                    {
-                        var jobRunner = serviceProvider.GetService<IJobRunner>();
-                        jobRunner.Run(fileStreamReader, streamWriter);
-                    }
+                    var jobRunner = serviceProvider.GetService<IJobRunner>();
+                    jobRunner.Run(inputPath, streamWriter);
                 }
             }
         }
