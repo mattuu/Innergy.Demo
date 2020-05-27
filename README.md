@@ -13,10 +13,12 @@ cd src\Innergy.Demo.Console
 dotnet run [-- <input_file_path> <output_file_path>]
 ```
 
-> `<input_file_path>` and `<output_file_path>` arguments are optional. If not specified, default file paths are:
-> * input: `..\..\data\input.txt`
-> * output: `\tmp\output.txt`
+> `<input_file_path>` argument is optional. If not specified, default file path for input file is `\tmp\input.txt`.
+> `<output_file_path>` argument is optional. If not specified, output will be written to console.
 
 ### Sample Data
 
-There is a sample data file available in repo: `data\input.txt`. Sample data file contains data provided in task description
+There is a sample data file available in repo: `data\input.txt`. Sample data file contains data provided in task description.
+
+> It's necessary to copy `input.txt` into `\tmp` folder before starting the application.
+
